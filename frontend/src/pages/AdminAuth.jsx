@@ -1,31 +1,32 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AdminAuth = () => {
   const [isSignUp, setIsSignUp] = useState(false); // État pour basculer entre login et sign-up
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState(""); // Nom pour le sign-up
+  const [error, setError] = useState(""); // État pour afficher les erreurs
   const navigate = useNavigate();
 
-  // Exemple de stockage des données admin (localStorage pour simplification)
-  const handleAuth = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
-
-    if (isSignUp) {
-      // Création de compte
-      const adminData = { name, email, password };
-      localStorage.setItem("admin", JSON.stringify(adminData));
-      alert("Compte créé avec succès !");
-      setIsSignUp(false); // Retour au login après sign-up
-    } else {
-      // Connexion
-      const storedAdmin = JSON.parse(localStorage.getItem("admin"));
-      if (storedAdmin && storedAdmin.email === email && storedAdmin.password === password) {
-        navigate("/"); // Redirige vers le tableau de bord admin
-      } else {
-        alert("Email ou mot de passe incorrect.");
-      }
+    try {
+      const response = await axios.post("http://localhost:5000/admin/login", {
+        username: email,
+        password,
+      });
+      const adminData = {
+        name: response.data.name, // Assurez-vous que le backend retourne le nom
+        email: response.data.email, // Assurez-vous que le backend retourne l'email
+      };
+      localStorage.setItem("admin", JSON.stringify(adminData)); // Stocker les données de l'admin
+      localStorage.setItem("token", response.data.token); // Stocker le token JWT
+      alert("Connexion réussie !");
+      navigate("/admin/dashboard"); // Rediriger vers le tableau de bord admin
+    } catch (err) {
+      setError(err.response?.data?.message || "Erreur lors de la connexion.");
     }
   };
 
@@ -33,6 +34,7 @@ const AdminAuth = () => {
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-6 rounded shadow-lg w-96">
         <h1 className="text-2xl font-bold mb-4">{isSignUp ? "Créer un compte" : "Connexion"}</h1>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleAuth}>
           {isSignUp && (
             <div className="mb-4">

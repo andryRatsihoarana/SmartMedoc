@@ -12,7 +12,7 @@ const Header = () => {
   useEffect(() => {
     const storedAdmin = JSON.parse(localStorage.getItem("admin"));
     if (storedAdmin) {
-      setAdmin(storedAdmin);
+      setAdmin(storedAdmin); // Stocker les données de l'admin dans l'état
     }
   }, []);
 
@@ -42,6 +42,12 @@ const Header = () => {
     };
   }, []);
 
+  // Générer une couleur de fond aléatoire pour l'avatar
+  const generateAvatarColor = () => {
+    const colors = ["bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-purple-500"];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   return (
     <aside
       className={`bg-blue-600 text-white h-screen p-4 transition-all duration-300 ${
@@ -60,7 +66,15 @@ const Header = () => {
 
       {/* Profile Section */}
       <div className="mb-8 cursor-pointer flex flex-col items-center">
-        <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+        {/* Avatar */}
+        <div
+          className={`w-16 h-16 flex items-center justify-center rounded-full text-white text-xl font-bold ${
+            admin ? generateAvatarColor() : "bg-gray-300"
+          }`}
+        >
+          {admin && admin.name ? admin.name.charAt(0).toUpperCase() : "A"}
+        </div>
+        {/* Admin Info */}
         {!isCollapsed && admin && (
           <div className="mt-2 text-center">
             <p className="font-bold">{admin.name}</p>
@@ -75,7 +89,7 @@ const Header = () => {
         <ul className="space-y-4">
           <li>
             <Link
-              to="/"
+              to="/admin/dashboard"
               className="flex items-center space-x-4 hover:bg-blue-500 p-2 rounded"
             >
               <Home size={24} />

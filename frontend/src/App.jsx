@@ -5,44 +5,47 @@ import Doctors from "./pages/Doctors";
 import DoctorProfile from "./pages/DoctorProfile";
 import DoctorLogin from "./pages/DoctorLogin";
 import DoctorSpace from "./pages/DoctorSpace";
-import Header from "./components/Header";
-import ConsultationPage from "./pages/ConsultationPage"; // Import de la page de consultation
+import ConsultationPage from "./pages/ConsultationPage";
 import AdminAuth from "./pages/AdminAuth";
+import ProtectedLayout from "./components/ProtectedLayout";
 
 const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Route pour l'authentification admin */}
         <Route path="/admin-auth" element={<AdminAuth />} />
-        {/* Routes avec le sidebar */}
+
+        {/* Routes protégées avec le Sidebar */}
         <Route
-          path="/"
+          path="/admin/dashboard"
           element={
-            <div className="flex">
-              <Header />
-              <main className="flex-1 p-4">
-                <Dashboard />
-              </main>
-            </div>
+            <ProtectedLayout>
+              <Dashboard />
+            </ProtectedLayout>
           }
         />
         <Route
           path="/doctors"
           element={
-            <div className="flex">
-              <Header />
-              <main className="flex-1 p-4">
-                <Doctors />
-              </main>
-            </div>
+            <ProtectedLayout>
+              <Doctors />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/consultations/:patientId"
+          element={
+            <ProtectedLayout>
+              <ConsultationPage />
+            </ProtectedLayout>
           }
         />
 
-        {/* Routes sans le sidebar */}
+        {/* Routes sans le Sidebar */}
         <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/doctor-login" element={<DoctorLogin />} />
         <Route path="/doctor-space/:id" element={<DoctorSpace />} />
-        <Route path="/consultations/:patientId" element={<ConsultationPage />} />
       </Routes>
     </Router>
   );

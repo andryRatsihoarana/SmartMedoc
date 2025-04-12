@@ -48,6 +48,23 @@ const ConsultationPage = () => {
     doc.save("medications.pdf");
   };
 
+  const getMedicationSuggestions = async (symptoms) => {
+    try {
+      const response = await fetch("https://api.example.com/get-medications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ symptoms }),
+      });
+      const data = await response.json();
+      return data.medications; // Supposons que l'API retourne un tableau de médicaments
+    } catch (error) {
+      console.error("Erreur lors de la récupération des suggestions de médicaments :", error);
+      return [];
+    }
+  };
+
   return (
     <div className="p-4">
       <button
@@ -86,7 +103,16 @@ const ConsultationPage = () => {
               className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-400"
               onClick={() => generatePDF(consultation.medications)}
             >
-              Télécharger les médicaments (PDF)
+              Télécharger la liste des médicaments requis (PDF)
+            </button>
+            <button
+              className="mt-2 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-400"
+              onClick={async () => {
+                const suggestedMedications = await getMedicationSuggestions(consultation.illnesses);
+                alert(`Médicaments suggérés : ${suggestedMedications.join(", ")}`);
+              }}
+            >
+              Suggérer des médicaments (IA)
             </button>
           </div>
         ))}
@@ -129,6 +155,19 @@ const ConsultationPage = () => {
                   required
                 />
               </div>
+              <button
+                type="button"
+                className="bg-purple-500 text-white px-4 py-2 rounded mb-4"
+                onClick={async () => {
+                  const illnesses = document.querySelector("textarea[name='illnesses']").value
+                    .split("\n")
+                    .map((ill) => ill.trim());
+                  const suggestedMedications = await getMedicationSuggestions(illnesses);
+                  document.querySelector("input[name='medications']").value = suggestedMedications.join(", ");
+                }}
+              >
+                Suggérer des médicaments (IA)
+              </button>
               <div className="flex justify-end">
                 <button
                   type="button"
